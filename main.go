@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"go-cloud-drive/handler"
 	"go-cloud-drive/middleware"
+	"go-cloud-drive/utils"
 	"log"
 	"log/slog"
 	"net/http"
@@ -21,11 +22,33 @@ func main() {
 		os.Exit(1)
 	}
 
+	db := utils.GetDB()
+	if db == nil {
+		slog.Error("Fail to connect database")
+		os.Exit(1)
+	}
+
+	err = os.MkdirAll(os.Getenv("ROOT_DIR"), 0755)
+	if err != nil {
+		slog.Error("Fail to create root dir " + err.Error())
+		os.Exit(1)
+	}
+
 	port := os.Getenv("PORT")
 
 	server := http.NewServeMux()
 
 	server.HandleFunc("GET /hello", handler.Hello)
+
+	// TODO: Upload file
+	server.HandleFunc("POST /file", handler.UploadFile)
+	// TODO: Retrieve a list of files
+
+	// TODO: Retrieve single file metadata
+
+	// TODO: Edit file metadata
+
+	// TODO: Delete file
 
 	slog.Info("Starting the server on port " + port + "...")
 
